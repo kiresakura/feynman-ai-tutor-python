@@ -98,7 +98,7 @@ if ss.explain:
     d = ss.explain
     st.subheader("2 · Explain it simply")
     st.markdown(f"**💡 Simple explanation**\n\n{d['simple']}")
-    st.markdown(f"**🔗 Real-life analogy**")
+    st.markdown("**🔗 Real-life analogy**")
     st.success(d["analogy"])
     st.markdown("**📌 Key points**")
     for k in d["keypoints"]:

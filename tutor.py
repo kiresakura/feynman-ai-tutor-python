@@ -141,8 +141,8 @@ def call_gemini(prompt: str, api_key: str, model: str) -> dict:
         msg = ""
         try:
             msg = r.json().get("error", {}).get("message", "")
-        except Exception:
-            pass
+        except (ValueError, AttributeError):
+            pass  # 錯誤內容不是預期的 JSON 物件，就用通用提示
         raise RuntimeError(f"Gemini error ({r.status_code}). {msg or 'Check your key or quota.'}")
     data = r.json()
     try:

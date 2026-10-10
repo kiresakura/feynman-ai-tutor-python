@@ -92,9 +92,14 @@ def test_call_gemini_surfaces_the_api_error_message(gemini):
         tutor.call_gemini("PROMPT", "bad-key", "gemini-test")
 
 
-def test_call_gemini_falls_back_to_a_generic_hint_without_error_body(gemini):
+@pytest.mark.parametrize(
+    "payload",
+    [ValueError("not JSON"), ["unexpected", "list"], {"error": "plain text"}],
+    ids=["not-json", "list", "error-is-text"],
+)
+def test_call_gemini_falls_back_to_a_generic_hint_without_error_body(gemini, payload):
     gemini.status_code = 429
-    gemini.payload = ValueError("not JSON")
+    gemini.payload = payload
 
     with pytest.raises(RuntimeError, match="Check your key or quota"):
         tutor.call_gemini("PROMPT", "test-key", "gemini-test")
