@@ -241,3 +241,14 @@ def test_live_grade_clamps_the_score(gemini):
 
     assert result["score"] == 100
     assert result["gaps"] == ["Base case"]
+
+
+def test_call_gemini_sends_the_key_in_a_header_not_the_url(gemini):
+    # 回歸：金鑰放在網址時，連線錯誤訊息會帶出完整網址，畫面上的錯誤框就會露出金鑰
+    gemini.reply(json.dumps(EXPLANATION))
+
+    tutor.call_gemini("PROMPT", "secret-key", "gemini-test")
+
+    (call,) = gemini.calls
+    assert "secret-key" not in call["url"]
+    assert call["headers"] == {"x-goog-api-key": "secret-key"}

@@ -131,12 +131,12 @@ def parse_json(text: str) -> dict:
 
 
 def call_gemini(prompt: str, api_key: str, model: str) -> dict:
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
     body = {
         "contents": [{"parts": [{"text": prompt}]}],
         "generationConfig": {"temperature": 0.6, "responseMimeType": "application/json"},
     }
-    r = requests.post(url, json=body, timeout=60)
+    r = requests.post(url, json=body, headers={"x-goog-api-key": api_key}, timeout=60)
     if r.status_code != 200:
         msg = ""
         try:
