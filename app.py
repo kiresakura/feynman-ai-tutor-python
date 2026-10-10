@@ -14,7 +14,7 @@ import datetime
 
 import streamlit as st
 
-from tutor import call_gemini, demo_explain, demo_grade, explain_prompt, grade_prompt
+from tutor import explain, grade, score_label
 
 # --------------------------------------------------------------------------- #
 # Page config
@@ -46,24 +46,6 @@ with st.sidebar:
                    "Get a free one at [Google AI Studio](https://aistudio.google.com/apikey).")
     st.divider()
     st.caption("Built with Python · Streamlit · Google Gemini API")
-
-
-def run_explain(topic: str, level: str) -> dict:
-    if live:
-        if not api_key.strip():
-            st.error("No Gemini key yet — paste one in the sidebar, or use Demo mode.")
-            return None
-        return call_gemini(explain_prompt(topic, level), api_key.strip(), model)
-    return demo_explain(topic)
-
-
-def run_grade(topic: str, user_text: str) -> dict:
-    if live:
-        if not api_key.strip():
-            st.error("No Gemini key yet — paste one in the sidebar, or use Demo mode.")
-            return None
-        return call_gemini(grade_prompt(topic, user_text), api_key.strip(), model)
-    return demo_grade(topic, user_text)
 
 
 # --------------------------------------------------------------------------- #
@@ -104,7 +86,7 @@ if st.button("✨ Teach me", type="primary", use_container_width=True):
         ss.grade = None
         with st.spinner(f"Breaking \"{ss.topic}\" down into the clearest form…"):
             try:
-                ss.explain = run_explain(ss.topic, level)
+                ss.explain = explain(ss.topic, level, live=live, api_key=api_key, model=model)
             except Exception as e:  # noqa: BLE001
                 ss.explain = None
                 st.error(str(e))
@@ -133,7 +115,7 @@ if ss.explain:
     if st.button("🔍 Find my gaps", type="primary"):
         with st.spinner("Comparing your explanation and finding the gaps…"):
             try:
-                ss.grade = run_grade(ss.topic, user_text)
+                ss.grade = grade(ss.topic, user_text, live=live, api_key=api_key, model=model)
             except Exception as e:  # noqa: BLE001
                 ss.grade = None
                 st.error(str(e))
@@ -143,13 +125,10 @@ if ss.explain:
 # --------------------------------------------------------------------------- #
 if ss.grade:
     g = ss.grade
-    score = max(0, min(100, int(g.get("score", 0))))
+    score = g["score"]
     st.subheader("4 · Your understanding & gaps")
     st.progress(score / 100.0)
-    label = ("Great — you really get it 🎉" if score >= 80
-             else "Nice. Patch a couple of gaps and it's complete 💪" if score >= 55
-             else "Don't worry — this is where progress starts 🌱")
-    st.metric("Understanding", f"{score} / 100", label)
+    st.metric("Understanding", f"{score} / 100", score_label(score))
     if g.get("correct"):
         st.markdown("**✅ What you've got**")
         for c in g["correct"]:
