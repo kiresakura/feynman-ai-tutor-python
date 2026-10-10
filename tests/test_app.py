@@ -73,6 +73,7 @@ def test_live_mode_renders_the_gemini_reply(gemini):
     teach(at, "Recursion")
 
     assert len(gemini.calls) == 1
+    assert "/models/gemini-3.6-flash:" in gemini.calls[0]["url"]
     assert any("Recursion means a function calls itself." in m.value for m in at.markdown)
     assert at.success[0].value == "Like standing between two mirrors."
 

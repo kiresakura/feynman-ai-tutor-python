@@ -37,11 +37,11 @@ with st.sidebar:
     st.header("⚙️ Settings")
     mode = st.radio("Learning engine", ["🧪 Demo mode (no setup)", "⚡ Live AI (Gemini)"])
     live = mode.startswith("⚡")
-    api_key, model = "", "gemini-2.0-flash"
+    api_key, model = "", "gemini-3.6-flash"
     if live:
         api_key = st.text_input("Gemini API key", type="password",
                                 help="Free key at https://aistudio.google.com/apikey")
-        model = st.selectbox("Model", ["gemini-2.0-flash", "gemini-2.0-flash-lite", "gemini-1.5-flash"])
+        model = st.selectbox("Model", ["gemini-3.6-flash", "gemini-3.1-flash-lite"])
         st.caption("Your key is used only to call Google directly from this app. "
                    "Get a free one at [Google AI Studio](https://aistudio.google.com/apikey).")
     st.divider()

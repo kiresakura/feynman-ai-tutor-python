@@ -81,7 +81,7 @@ def test_call_gemini_posts_prompt_and_parses_reply(gemini):
     assert ":generateContent" in call["url"]
     assert "/models/gemini-test:" in call["url"]
     assert call["json"]["contents"][0]["parts"][0]["text"] == "PROMPT"
-    assert call["json"]["generationConfig"]["responseMimeType"] == "application/json"
+    assert call["json"]["generationConfig"] == {"responseMimeType": "application/json"}
 
 
 def test_call_gemini_surfaces_the_api_error_message(gemini):
