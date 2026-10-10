@@ -11,10 +11,14 @@ Works in two modes:
 """
 
 import datetime
+import os
 
 import streamlit as st
+from dotenv import load_dotenv
 
 from tutor import explain, grade, score_label
+
+load_dotenv()  # 讀取本機 .env（若有）；已經存在的環境變數不會被覆蓋
 
 # --------------------------------------------------------------------------- #
 # Page config
@@ -41,6 +45,11 @@ with st.sidebar:
     if live:
         api_key = st.text_input("Gemini API key", type="password",
                                 help="Free key at https://aistudio.google.com/apikey")
+        # 欄位空白時改用伺服器端的 GEMINI_API_KEY；金鑰只留在伺服器，不回填到瀏覽器
+        env_key = os.environ.get("GEMINI_API_KEY", "").strip()
+        if env_key and not api_key.strip():
+            api_key = env_key
+            st.caption("Using GEMINI_API_KEY from the server environment.")
         model = st.selectbox("Model", ["gemini-3.6-flash", "gemini-3.1-flash-lite"])
         st.caption("Your key is used only to call Google directly from this app. "
                    "Get a free one at [Google AI Studio](https://aistudio.google.com/apikey).")

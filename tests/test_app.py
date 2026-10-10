@@ -112,3 +112,28 @@ def test_live_grade_accepts_a_score_written_as_text(gemini):
 
     assert at.metric[0].value == "85 / 100"
     assert any("Mention the base case" in m.value for m in at.markdown)
+
+
+ENV_CAPTION = "Using GEMINI_API_KEY from the server environment."
+REPLY = json.dumps(tutor.DEMO["Neural networks"])
+
+
+def test_live_mode_falls_back_to_the_environment_key(gemini, monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "env-key")
+    gemini.reply(REPLY)
+    at = start_app()
+    at.sidebar.radio[0].set_value(LIVE).run()
+    teach(at, "Neural networks")
+
+    assert ENV_CAPTION in [c.value for c in at.sidebar.caption]
+    assert gemini.calls[0]["headers"] == {"x-goog-api-key": "env-key"}
+    assert at.sidebar.text_input[0].value == ""  # 金鑰不會回填到瀏覽器端的欄位
+
+
+def test_a_typed_key_wins_over_the_environment_key(gemini, monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "env-key")
+    at = live_app(gemini, REPLY)
+    teach(at, "Neural networks")
+
+    assert ENV_CAPTION not in [c.value for c in at.sidebar.caption]
+    assert gemini.calls[0]["headers"] == {"x-goog-api-key": "test-key"}

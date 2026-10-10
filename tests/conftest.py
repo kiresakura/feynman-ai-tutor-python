@@ -15,6 +15,12 @@ def _no_network(monkeypatch):
     monkeypatch.setattr(socket, "create_connection", blocked)
 
 
+@pytest.fixture(autouse=True)
+def _no_env_key(monkeypatch):
+    """預設沒有 GEMINI_API_KEY；設成空字串，本機 .env 也不會被 load_dotenv 帶進測試。"""
+    monkeypatch.setenv("GEMINI_API_KEY", "")
+
+
 class FakeResponse:
     def __init__(self, status_code, payload):
         self.status_code = status_code
